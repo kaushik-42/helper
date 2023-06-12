@@ -32,6 +32,13 @@ credits_per_hour = tshirt_sizes.get(tshirt_size)
 # Calculate the total credits per month
 total_credits = credits_per_hour * ((weekdays_hours_per_day * 21.7) + (weekends_hours_per_day * 8.7))
 
+# Get user inputs for storage volumes and growth percentages
+Production_Storage_Volume = float(input("Enter the production storage volume (in TB): "))
+Production_Growth = float(input("Enter the growth for production storage volume (in %): "))
+NonProd_Storage_Volume = float(input("Enter the non-production storage volume (in TB): "))
+NonProd_Growth = float(input("Enter the growth for non-production storage volume (in %): "))
+
+
 # Calculate Direct Costs for each month and generate yearly estimate
 monthly_costs = []
 yearly_estimate = 0
