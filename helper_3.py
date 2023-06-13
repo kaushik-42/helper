@@ -35,12 +35,12 @@ def calculate_costs():
         st.subheader("Use Case Details")
         use_case = st.text_input("Enter the use case:")
         tshirt_size = st.selectbox("Select the t-shirt size:", list(tshirt_sizes.keys()))
-        weekdays_hours_per_day = st.number_input("Enter the number of hours per day for weekdays:", min_value=0.0, value=8.0)
-        weekends_hours_per_day = st.number_input("Enter the number of hours per day for weekends:", min_value=0.0, value=0.0)
-        Production_Storage_Volume = st.number_input("Enter the production storage volume (in TB):", min_value=0.0, value=1.0)
-        Production_Growth = st.number_input("Enter the growth for production storage volume (in %):", min_value=0.0, value=0.0)
-        NonProd_Storage_Volume = st.number_input("Enter the non-production storage volume (in TB):", min_value=0.0, value=1.0)
-        NonProd_Growth = st.number_input("Enter the growth for non-production storage volume (in %):", min_value=0.0, value=0.0)
+        weekdays_hours_per_day = st.number_input("Enter the number of hours per day for weekdays:", min_value=0.0, value=8.0, key="weekday_hours")
+        weekends_hours_per_day = st.number_input("Enter the number of hours per day for weekends:", min_value=0.0, value=0.0, key="weekend_hours")
+        Production_Storage_Volume = st.number_input("Enter the production storage volume (in TB):", min_value=0.0, value=1.0, key="prod_volume")
+        Production_Growth = st.number_input("Enter the growth for production storage volume (in %):", min_value=0.0, value=0.0, key="prod_growth")
+        NonProd_Storage_Volume = st.number_input("Enter the non-production storage volume (in TB):", min_value=0.0, value=1.0, key="nonprod_volume")
+        NonProd_Growth = st.number_input("Enter the growth for non-production storage volume (in %):", min_value=0.0, value=0.0, key="nonprod_growth")
 
         # Calculate Direct Costs for each month
         monthly_costs = []
@@ -58,9 +58,9 @@ def calculate_costs():
             monthly_costs.append({
                 "Use Case": use_case,
                 "Month": f"Month {month}",
+                "Compute Cost": compute
                 "Compute Cost": compute_cost,
                 "Compute Volume": total_credits,
-                "Storage Costs
                 "Storage Costs": production_storage_cost_per_month + nonprod_storage_cost_per_month,
                 "Prod Storage Volume": Production_Storage_Volume,
                 "Non-Prod Storage Volume": NonProd_Storage_Volume
@@ -76,7 +76,7 @@ def calculate_costs():
 
     # Display the result dataframe
     st.subheader("Results")
-    st.dataframe(result_df)
+    st.dataframe(result_df.set_index('Month'))
 
     # Check if the user wants to clear the result dataframe
     if st.button("Clear Results"):
@@ -85,3 +85,4 @@ def calculate_costs():
 
 # Run the Streamlit app
 calculate_costs()
+
