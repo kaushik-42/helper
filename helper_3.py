@@ -33,15 +33,15 @@ def calculate_costs():
 
     while True:
         st.subheader("Use Case Details")
-        use_case = st.text_input("Enter the use case:")
-        tshirt_size = st.selectbox("Select the t-shirt size:", list(tshirt_sizes.keys()))
-        weekdays_hours_per_day = st.number_input("Enter the number of hours per day for weekdays:", min_value=0.0, value=8.0, key="weekday_hours")
-        weekends_hours_per_day = st.number_input("Enter the number of hours per day for weekends:", min_value=0.0, value=0.0, key="weekend_hours")
-        Production_Storage_Volume = st.number_input("Enter the production storage volume (in TB):", min_value=0.0, value=1.0, key="prod_volume")
-        Production_Growth = st.number_input("Enter the growth for production storage volume (in %):", min_value=0.0, value=0.0, key="prod_growth")
-        NonProd_Storage_Volume = st.number_input("Enter the non-production storage volume (in TB):", min_value=0.0, value=1.0, key="nonprod_volume")
-        NonProd_Growth = st.number_input("Enter the growth for non-production storage volume (in %):", min_value=0.0, value=0.0, key="nonprod_growth")
-
+        
+        use_case = st.text_input("Enter the use case:", key=f"use_case_{len(result_df)+1}")
+        tshirt_size = st.selectbox("Select the t-shirt size:", list(tshirt_sizes.keys()), key=f"tshirt_size_{len(result_df)+1}")
+        weekdays_hours_per_day = st.number_input("Enter the number of hours per day for weekdays:", min_value=0.0, value=8.0, key=f"weekday_hours_{len(result_df)+1}")
+        weekends_hours_per_day = st.number_input("Enter the number of hours per day for weekends:", min_value=0.0, value=0.0, key=f"weekend_hours_{len(result_df)+1}")
+        Production_Storage_Volume = st.number_input("Enter the production storage volume (in TB):", min_value=0.0, value=1.0, key=f"prod_volume_{len(result_df)+1}")
+        Production_Growth = st.number_input("Enter the growth for production storage volume (in %):", min_value=0.0, value=0.0, key=f"prod_growth_{len(result_df)+1}")
+        NonProd_Storage_Volume = st.number_input("Enter the non-production storage volume (in TB):", min_value=0.0, value=1.0, key=f"nonprod_volume_{len(result_df)+1}")
+        NonProd_Growth = st.number_input("Enter the growth for non-production storage volume (in %):", min_value=0.0, value=0.0, key=f"nonprod_growth_{len(result_df)+1}")
         # Calculate Direct Costs for each month
         monthly_costs = []
         for month in range(1, 13):
