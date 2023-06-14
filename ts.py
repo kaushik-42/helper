@@ -80,3 +80,13 @@ for application in unique_applications:
     except Exception as e:
         print(f"Error occurred for {application}: {str(e)}")
 
+# To plot things for Xgboost:
+# Plot the actual data and predictions
+plt.figure(figsize=(10, 6))
+plt.plot(application_data.index, y, label='Actual')
+plt.plot(application_data.index, predictions, label='Predictions')
+plt.xlabel('Date')
+plt.ylabel('Direct Costs')
+plt.title(f'{selected_application} - Actual vs Predictions')
+plt.legend()
+plt.show()
