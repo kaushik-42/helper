@@ -68,24 +68,23 @@ def main():
         add_row()
 
     # Display the use case table
-    st.table(use_case_table)
+    for i, row in use_case_table.iterrows():
+        st.text_input(f"Use Case {i+1}", value=row["Use Case"], key=f"use_case_input_{i}")
+        st.selectbox(f"T-shirt Size {i+1}", list(tshirt_sizes.keys()), index=list(tshirt_sizes.keys()).index(row["T-shirt Size"]), key=f"tshirt_size_input_{i}")
+        st.number_input(f"Weekdays Hours {i+1}", min_value=0.0, value=row["Weekdays Hours"], key=f"weekdays_hours
+        st.number_input(f"Weekends Hours {i+1}", min_value=0.0, value=row["Weekends Hours"], key=f"weekends_hours_input_{i}")
+        st.number_input(f"Prod Storage Volume {i+1}", min_value=0.0, value=row["Prod Storage Volume"], key=f"prod_storage_input_{i}")
+        st.number_input(f"Non-Prod Storage Volume {i+1}", min_value=0.0, value=row["Non-Prod Storage Volume"], key=f"nonprod_storage_input_{i}")
+        st.button(f"Remove Row {i+1}", on_click=lambda i=i: remove_row(i))
 
-    # Add a new row button
     if st.button("Add Row"):
         add_row()
 
-    # Remove a row button
-    if st.button("Remove Row"):
-        selected_rows = st.multiselect("Select Rows to Remove", list(use_case_table.index))
-        for row in selected_rows:
-            remove_row(row)
-
-    # Calculate costs button
     if st.button("Calculate Costs"):
         result_df = calculate_costs()
         st.subheader("Results")
-        st.dataframe(result_df.set_index('Month'))
+        st.dataframe(result_df)
 
-
+# Run the Streamlit app
 if __name__ == "__main__":
     main()
