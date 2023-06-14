@@ -73,6 +73,17 @@ for application in unique_applications:
         # Make predictions on the test data
         predictions = model.predict(X_test)
 
+        
+        # Plot actual vs predicted
+        plt.figure(figsize=(10, 6))
+        plt.plot(application_data.index, y, label='Actual')
+        plt.plot(application_data.index, predictions, label='Predicted')
+        plt.xlabel('Date')
+        plt.ylabel('Direct Costs')
+        plt.title(f'{application} - Actual vs Predicted')
+        plt.legend()
+        plt.show()
+        
         # Calculate RMSE
         rmse = mean_squared_error(y_test, predictions, squared=False)
         print(f"RMSE for {application}: {rmse:.2f}")
@@ -80,7 +91,7 @@ for application in unique_applications:
     except Exception as e:
         print(f"Error occurred for {application}: {str(e)}")
 
-# To plot things for Xgboost:
+# To plot things for Xgboost(Seperately):
 # Plot the actual data and predictions
 plt.figure(figsize=(10, 6))
 plt.plot(application_data.index, y, label='Actual')
