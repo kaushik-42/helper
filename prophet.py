@@ -35,3 +35,27 @@ for application in unique_applications:
     # Evaluate the model's performance
     rmse = mean_squared_error(test_data['y'], test_predictions['yhat'], squared=False)
     print(f"RMSE for {application}: {rmse:.2f}")
+
+    
+    import numpy as np
+
+def mean_absolute_percentage_error(y_true, y_pred, small_constant=1e-6):
+    """
+    Calculate the Mean Absolute Percentage Error (MAPE) with handling for zero values.
+
+    Parameters:
+        y_true (array-like): Array of true values.
+        y_pred (array-like): Array of predicted values.
+        small_constant (float, optional): Small constant value to be added to the denominator for handling zero values.
+                                          Defaults to 1e-6.
+
+    Returns:
+        float: Mean Absolute Percentage Error (MAPE) with handling for zero values.
+    """
+    y_true = np.asarray(y_true)
+    y_pred = np.asarray(y_pred)
+
+    absolute_percentage_errors = np.abs((y_true - y_pred) / np.maximum(np.abs(y_true), small_constant))
+    mape = np.mean(absolute_percentage_errors) * 100
+
+    return mape
