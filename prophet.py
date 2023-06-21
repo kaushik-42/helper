@@ -59,3 +59,20 @@ def mean_absolute_percentage_error(y_true, y_pred, small_constant=1e-6):
     mape = np.mean(absolute_percentage_errors) * 100
 
     return mape
+
+
+def mape(y_true, y_pred):
+    n = len(y_true)
+    error_sum = 0
+    count = 0
+
+    for i in range(n):
+        if y_true[i] != 0:
+            error_sum += abs((y_true[i] - y_pred[i]) / y_true[i])
+            count += 1
+
+    if count > 0:
+        mape_value = (error_sum / count) * 100
+        return mape_value
+    else:
+        return None
