@@ -194,3 +194,30 @@ def main():
 # Run the Streamlit app
 if __name__ == "__main__":
     main()
+
+
+import streamlit as st
+import plotly.graph_objects as go
+from prophet import Prophet
+
+# Assuming you have already trained your Prophet model and obtained the forecast
+# and the model instance is stored in 'model'
+
+# Visualize forecast plot with Plotly
+fig_forecast = model.plot(forecast)
+fig_forecast.update_layout(
+    title="Forecast Plot",
+    xaxis_title="Date",
+    yaxis_title="Value",
+)
+
+# Visualize components plot with Plotly
+fig_components = model.plot_components(forecast)
+fig_components.update_layout(
+    title="Components Plot",
+)
+
+# Render the interactive Plotly charts using Streamlit
+st.plotly_chart(fig_forecast)
+st.plotly_chart(fig_components)
+
