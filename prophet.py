@@ -150,3 +150,47 @@ for application, model in best_models.items():
     # ...
 
 # Additional steps as per your requirement
+
+
+import streamlit as st
+from prophet import Prophet
+
+# Define the available application options and frequencies
+application_options = ['App 1', 'App 2', 'App 3']
+frequency_options = ['D', 'W', 'M']
+
+# Function to train the Prophet model and generate the forecast
+def train_prophet_model(application, period, frequency):
+    # Perform the necessary data preprocessing and Prophet model training here
+    # Replace this with your actual implementation
+    # ...
+
+    # Return the forecast results
+    return forecast
+
+
+# Streamlit app
+def main():
+    # Page title
+    st.title("Prophet Forecasting App")
+
+    # User inputs
+    application = st.selectbox("Select Application", application_options)
+    period = st.text_input("Enter Period")
+    frequency = st.selectbox("Select Frequency", frequency_options)
+
+    # Submit button
+    if st.button("Submit"):
+        if application and period and frequency:  # Check if all fields are selected
+            # Call the function to train the Prophet model and generate the forecast
+            forecast = train_prophet_model(application, period, frequency)
+
+            # Display the forecast results
+            st.write("Forecast Results:")
+            st.write(forecast)
+        else:
+            st.warning("Please select all fields.")
+
+# Run the Streamlit app
+if __name__ == "__main__":
+    main()
