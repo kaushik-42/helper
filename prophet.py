@@ -221,3 +221,31 @@ fig_components.update_layout(
 st.plotly_chart(fig_forecast)
 st.plotly_chart(fig_components)
 
+import streamlit as st
+import plotly.figure_factory as ff
+from prophet import Prophet
+
+# Assuming you have already trained your Prophet model and obtained the forecast
+# and the model instance is stored in 'model'
+
+# Visualize forecast plot with Plotly
+fig_forecast = model.plot(forecast)
+fig_forecast = ff.create_2d_density(
+    fig_forecast.data[0].x,
+    fig_forecast.data[0].y,
+    colorscale='Viridis',
+    hist_color='rgba(0,100,200,0.7)'
+)
+
+# Visualize components plot with Plotly
+fig_components = model.plot_components(forecast)
+fig_components = ff.create_2d_density(
+    fig_components.data[0].x,
+    fig_components.data[0].y,
+    colorscale='Viridis',
+    hist_color='rgba(0,100,200,0.7)'
+)
+
+# Render the interactive Plotly charts using Streamlit
+st.plotly_chart(fig_forecast)
+st.plotly_chart(fig_components)
