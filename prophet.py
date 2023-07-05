@@ -246,6 +246,88 @@ fig_components = ff.create_2d_density(
     hist_color='rgba(0,100,200,0.7)'
 )
 
+----------------------------------------------------------
+
+import pandas as pd
+from fbprophet import Prophet
+from sklearn.metrics import mean_absolute_percentage_error
+
+# Step 1: Load and preprocess the data
+df = pd.read_csv('your_dataset.csv', parse_dates=['Date'])
+
+# Step 2: Separate the data by application
+unique_applications = df['Tag_fo_application'].unique()
+
+# Step 3: Define the parameter grid for tuning
+seasonality_prior_scales = [0.01, 0.1, 1, 10]
+changepoint_prior_scales = [0.001, 0.01, 0.1, 1]
+growth_types = ['linear', 'logistic']
+
+best_models = {}
+best_params = {}
+
+# Step 4: Iterate over applications and fit models
+for application in unique_applications:
+    # Filter data for the current application
+    application_data = df[df['Tag_fo_application'] == application][['Date', 'direct_cost']]
+    application_data = application_data.rename(columns={'Date': 'ds', 'direct_cost': 'y'})
+
+    train_size = int(len(application_data) * 0.8)
+    train_data = application_data[:train_size]
+    valid_data = application_data[train_size:]
+
+    best_mape = float('inf')
+    best_model = None
+
+    for seasonality_prior_scale in seasonality_prior_scales:
+        for changepoint_prior_scale in changepoint_prior_scales:
+            for growth_type in growth_types:
+                # Fit the Prophet model with specified parameters
+                model = Prophet(seasonality_prior_scale=seasonality_prior_scale,
+                                changepoint_prior_scale=changepoint_prior_scale,
+                                weekly_seasonality=True,
+                                growth=growth_type,
+                                seasonality_mode='multiplicative')
+
+                # Fit the model
+                model.fit(train_data)
+
+                # Make predictions on the validation set
+                forecast = model.predict(valid_data[['ds']])
+                predictions = forecast['yhat'].values
+
+                # Calculate the MAPE score
+                mape = mean_absolute_percentage_error(valid_data['y'], predictions)
+
+                # Check if this model has the best MAPE score so far
+                if mape < best_mape:
+                    best_mape = mape
+                    best_model = model
+                    best_params[application] = {
+                        'seasonality_prior_scale': seasonality_prior_scale,
+                        'changepoint_prior_scale': changepoint_prior_scale,
+                        'growth_type': growth_type
+                    }
+
+    # Save the best model for this application
+    best_models[application] = best_model
+
+# Step 5: Print the best models and their parameters
+for application, model in best_models.items():
+    print(f"Application: {application}")
+    print("Best Model Parameters:")
+    print(best_params[application])
+    print()
+
+# Step 6: Example of using the best models for forecasting
+for application, model in best_models.items():
+    future = model.make_future_dataframe(periods=365)  # Adjust the number of periods as needed
+    forecast = model.predict(future)
+    # Perform further operations or analysis on the forecast data
+    # ...
+
+# Additional steps as per your requirement
+
 # Render the interactive Plotly charts using Streamlit
 st.plotly_chart(fig_forecast)
 st.plotly_chart(fig_components)
