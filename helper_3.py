@@ -1,98 +1,147 @@
 import streamlit as st
 import pandas as pd
+import pydeck as pdk
+from urllib.error import URLError
+import pickle
+import plotly.figure_factory as ff
+import altair as alt
+from prophet import Prophet
+import plotly.graph_objects as go
+import datetime
 
-# Define the credits per hour for each t-shirt size
-tshirt_sizes = {
-    "x-small": 1,
-    "small": 2,
-    "medium": 4,
-    "large": 8,
-    "x-large": 16,
-    "xx-large": 32,
-    "3xl": 64,
-    "4xl": 128,
-    "5xl": 256,
-    "6xl": 512,
-    "sp-medium": 6,
-    "sp-large": 12,
-    "sp-xl": 24,
-    "sp-2xl": 48,
-    "sp-3xl": 96,
-    "sp-4xl": 192,
-    "sp-5xl": 384,
-    "sp-6xl": 768
-}
+st.set_page_config(page_title = "Forecasting Budgets Demo", page_icon = "🔮")
 
-def calculate_costs():
-    st.title("Cloud Cost Estimation")
-    st.header("Use Cases")
+st.markdown("# Forecasting Budgets 🔮")
+st.sidebar.header("Forecasting Demo")
+st.write(
+    """
+    This Forecasting Budgets page provides the Forecasting for the Future cloud spends (Budgets) in terms of the Direct Costs and Shared Costs.
+    
+    **TODO:  You have to select the desired application from the Application Drop down box, Provide the Period value in terms of a number, where each Period represents w.r.t Frequency.**
+    
+    Let's say if we select "W" frequency from the drop-down box, then each and every period represents a week. If the Frequency is "W" and the number of periods are 30, then we get a forecasting for the next 30 weeks.
+    
+    This Forecasting is currently being done on the "Application-level" and mainly the target variable represents the "Direct Costs". To view all the applications which are available for Forecasting: Check the drop-down box by selecting the application.
+    """
+)
 
-    # Create an empty dataframe to store the results
-    result_df = pd.DataFrame(columns=["Use Case", "Month", "Compute Cost", "Compute Volume",
-                                      "Storage Costs", "Prod Storage Volume", "Non-Prod Storage Volume"])
+st.markdown("### Forecasting Prediction for Snowflake Warehouse:")
 
-    # Initialize the use case index
-    use_case_index = 0
+with open('best_models.pkl', 'rb') as file:
+	best_models = pickle.load(file)
 
-    # Loop to collect use case details
-    continue_entering = True
-    while continue_entering:
-        use_case_index += 1
-        st.subheader(f"Use Case {use_case_index}")
+def helper(application_model, periods, freq, df_temp):
+    # Creating the Forecasting data i.e the Future data points based on the Periods and Frequency, which will provide the Forecasting
+    future_application = application_model.make_future_dataframe(periods=int(periods), freq=freq)
 
-        # Use form container to group the input elements
-        with st.form(key=f"use_case_form_{use_case_index}"):
-            use_case = st.text_input("Enter the use case:")
-            tshirt_size = st.selectbox("Select the t-shirt size:", list(tshirt_sizes.keys()))
-            weekdays_hours_per_day = st.number_input("Enter the number of hours per day for weekdays:", min_value=0.0, value=8.0)
-            weekends_hours_per_day = st.number_input("Enter the number of hours per day for weekends:", min_value=0.0, value=0.0)
-            Production_Storage_Volume = st.number_input("Enter the production storage volume (in TB):", min_value=0.0, value=1.0)
-            Production_Growth = st.number_input("Enter the growth for production storage volume (in %):", min_value=0.0, value=0.0)
-            NonProd_Storage_Volume = st.number_input("Enter the non-production storage volume (in TB):", min_value=0.0, value=1.0)
-            NonProd_Growth = st.number_input("Enter the growth for non-production storage volume (in %):", min_value=0.0, value=0.0)
+    # Forecast data for an application:
+    forecast_application = application_model.predict(future_application)
 
-            # Append a submit button
-            submitted = st.form_submit_button(label="Calculate")
+    if(df_temp.empty):
+        pass
+    else:
+        st.write("**Analyzing Budgets for 12 Months from the Budgets Page:**")
+        try:
+            df_temp.set_index("Month ", inplace = True)
+            print(df_temp.columns)
+            st.line_chart(df_temp["Total Direct Costs"])
+        except:
+            pass
 
-        if submitted:
-            # Calculate Direct Costs for each month
-            monthly_costs = []
-            for month in range(1, 13):
-                # Calculate Compute Cost
-                credits_per_hour = tshirt_sizes.get(tshirt_size)
-                total_credits = credits_per_hour * ((weekdays_hours_per_day * 21.7) + (weekends_hours_per_day * 8.7))
-                compute_cost = total_credits * 2.5
+    st.write("Forecast Results:")
+    # TODO:
+    # Visualize forecast plot with Plotly
+    st.pyplot(application_model.plot(forecast_application))
+    st.write("""
+     The Below Plots describes the Trend Component, Seasonality Component, Bias Component, Yearly/Monthly/Weekly/Daily trends. 
 
-                # Calculate Storage Costs
-                production_storage_cost_per_month = 20 * Production_Storage_Volume * (1 + Production_Growth / 100)
-                nonprod_storage_cost_per_month = 20 * NonProd_Storage_Volume * (1 + NonProd_Growth / 100)
+     Note that the above plots depends on the Application, Data Points present for that application etc.
+     """)
 
-                # Add the monthly costs to the list
-                monthly_costs.append({
-                    "Use Case": use_case,
-                    "Month": f"Month {month}",
-                    "Compute Cost": compute_cost,
-                    "Compute Volume": total_credits,
-                    "Storage Costs": production_storage_cost_per_month + nonprod_storage_cost_per_month,
-                    "Prod Storage Volume": Production_Storage_Volume,
-                    "Non-Prod Storage Volume": NonProd_Storage_Volume
-                })
+    st.pyplot(application_model.plot_components(forecast_application))
+    st.write("To Analyze more regarding the Future data points:")
 
-            # Append the monthly costs to the result dataframe
-            result_df = result_df.append(monthly_costs, ignore_index=True)
+    df = pd.DataFrame(forecast_application)
+    #print(df)
+    #print(df.columns)
+    df_application = df[['ds', 'yhat_lower', 'yhat_upper', 'yhat']]
+    df_application.columns = ['Date','Prediction Lower Limit', 'Prediction Upper Limit', 'Prediction Point']
 
-        # Check if the user wants to continue entering use cases
-        continue_entering = st.checkbox("Continue entering use cases")
+    #df_application['Date'] = df_application['Date'].apply(lambda x: f'color: green')
+    #styler = df.style
 
-    # Display the result dataframe
-    st.subheader("Results")
-    st.dataframe(result_df.set_index('Month'))
+    #styled_df = styler.apply(lambda _: 'color: green', subset=['Date'])
 
-    # Check if the user wants to clear the result dataframe
-    if st.button("Clear Results"):
-        result_df = pd.DataFrame(columns=["Use Case", "Month", "Compute Cost", "Compute Volume",
-                                          "Storage Costs", "Prod Storage Volume", "Non-Prod Storage Volume"])
+    st.dataframe(df_application.style.background_gradient(subset=['Prediction Point'], cmap="BrBG"), width=800)
 
-# Run the Streamlit app
-calculate_costs()
+    # st.dataframe(df_application, width=800)
+    # Plotting the Forecast:
+    #st.pyplot(application_model.plot(forecast_application))
+
+    #st.pyplot(application_model.plot_components(forecast_application))
+    return ""
+
+# Define the available application options and frequencies
+application_options = ['340B ANALYTICS', 'ABC_DE_DSS', 'ADOBE', 'AI GOVERNANCE', 'AIR FLOW DATA SUPPORT', 'ANALYTIC PRODUCTS', 'ASSET PROTECTION', 'BI COE', 'BI ENGINEERING RETAIL DATA STRATEGY', 'CAREPASS ANALYTICS', 'CDP', 'CENTRAL FILL', 'CEX', 'CLINICAL DATA REPOSITORY', 'CLINICAL TRIALS', 'CLOUD COST REPORTING', 'CMX', 'COVID VACCINATION', 'COVID VACCINATION CUSTOMER LOYALTY', 'CS&G', 'CUSTOMER EXPERIENCE', 'DAILY DIGEST', 'DBA', 'DEMAND_FORECAST', 'DEWA', 'DEWA DATA MIGRATION TO SNOWFLAKE', 'DIGITAL - POC', 'DIGITAL MERCHANDISING', 'DIGITAL RETAIL ONSITE SEARCH PLATFORM', 'DME ANALYTICS', 'DUR', 'EDO', 'EDP', 'EDPCLOUDECBI', 'EHS', 'ENROLLED SERVICES', 'EPSO', 'EVENT DRIVEN OUTREACH', 'EXECUTIVE COMPLAINTS TEAM', 'EXECUTIVE DASHBOARD', 'FINANCIAL ATTRIBUTION', 'FL DL', 'FRONT STORE ASSORTMENT - BCG', 'FRONT STORE SUPPLY CHAIN', 'FS ANALYTICS', 'FS BI SOLUTIONS', 'FS DATA STRATEGY', 'FS_WORKFLOW', 'GIC HH-COMMON DATA MODEL', 'HR', 'HUMAN RESOURCES', 'IMMUNIZATION', 'INGEST - RETAIL RX', 'LEARNING HUB', 'LOYALTY & PERSONALIZATION', 'MARKETING AND CUSTOMER ANALYTICS', 'MC ANALYTICS', 'MEDIA DELIVERY DATA MART', 'MERCH BU', 'MICROSTRATEGY', 'MINUTE CLINIC', 'MPC THOUGHTSPOT', 'NCPDP', 'NETWORK OPERATIONS', 'NUTRITION', 'OMNIRX', 'OUTREACH PORTAL', 'PALANTIR', 'PANEL OUTREACH', 'PATIENT JOURNEY', 'PATIENT MERGE', 'PAY FOR PERFORMANCE', 'PERSONIZATION ENGINE - FRONT STORE RETAIL', 'PHARMACY OPERATIONS', 'PRODUCT DEVELOPMENT DATA LAB', 'PROFESSIONAL PRACTICE', 'PROMO', 'PROMO FORECAST', 'RCC ANALYTICS', 'REAL TIME INTEGRATION TESTING', 'RELATIONSHIP MARKETING- FINANCIAL ATTRIBUTION', 'RETAIL ANALYTICS', 'RETAIL CUSTOMER GROWTH ANALYTICS', 'RETAIL MERCHANDISING ANALYTICS', 'RETAIL RX', 'REVENUE CYCLE', 'RPHAI', 'RPHAI-DUR', 'RPHAI-REPORTING', 'RX ANALYTICS - B2B INSIGHTS', 'RX ANALYTICS - RONBA', 'RX IMAGING VIRTUAL VERIFICATION', 'RX OPERATIONS', 'RX OPERATIONS - COMMON', 'RX OPS-IMZ', 'RX PERSONALIZATION', 'RX PRACTICE INNOVATION', 'RX STORE OPS ANALYTICS - FDD', 'RX STORE OPS ANALYTICS - HR', 'RXDW', 'RXDW - IT', 'RXOPSTCT', 'RXPERSONALIZATION', 'SCRIPT PROFITABILITY', 'SNOWFLAKE', 'SNOWFLAKE DBA SUPPORT', 'SNOWFLAKE MARKETPLACE', 'SOCS COMPLIANCE', 'SOM', 'SPM', 'STARBURST BUSINESS', 'STORE DIGEST', 'STORE EXPERIENCE - IN STORE FULFILMENT', 'STORE EXPERIENCE-IN STORE FULFILMENT', 'STORE OPERATIONS', 'STRATEGIC PLANNING AND ANALYSIS', 'SUPPLY CHAIN', 'SUPPLY CHAIN ANALYTICS', 'SUPPLY CHAIN INNOVATION', 'TABLEAU', 'THIRD PARTY FINANCE', 'THOUGHTSPOT', 'THOUGHTSPOT FSGA']
+
+#for application in application_options:
+#    print(application)
+#frequency_options = ['D', 'W', 'M']
+frequency_options = ['Daily', 'Weekly', 'Monthly']
+#print(best_models)
+
+# Streamlit app
+def main():
+
+    # Importing inputs from other pages (Budget Page):
+    try:
+        df_temp = st.session_state["df"]
+        print('--------------------')
+        #st.pyplot(df_temp)
+        #print(df_temp)
+        #df_temp = pd.DataFrame(df_temp)
+        #print(df_temp)
+        #st.pyplot(df_temp)
+    except:
+        df_temp = pd.DataFrame()
+
+    # User inputs
+    application = st.selectbox("Select Application", application_options)
+    period = st.text_input("Enter Period")
+    frequency = st.selectbox("Select Frequency", frequency_options)
+
+    # Accepting a date input:
+    date = st.date_input(
+        "Enter the Time frame limit (From Date)",
+        datetime.date(2021, 7, 6))
+    ending_date = st.date_input(
+        "Enter the Time frame limit (Till Date)",
+        datetime.date(2021, 9, 10))
+
+    # Format: YYYY/MM/DD
+    #st.write('Your requested date starting from:', date)
+    #st.write('Yor requested date till:', ending_date)
+
+    # Selecting that respective application model from the picke file we have downloaded.
+    application_model = best_models[application]
+    # Submit button
+    if st.button("Submit"):
+        if application and period and frequency:  # Check if all fields are selected
+            # Display the forecast results
+            if(frequency == 'Daily'):
+                frequency_t = 'D'
+            elif(frequency == 'Weekly'):
+                frequency_t = 'W'
+            else:
+                frequency_t = 'M'
+            # Call the function to train the Prophet model and generate the forecast
+            forecast = helper(application_model, period, frequency_t, df_temp)
+
+        else:
+            st.warning("Please select all fields.")
+
+# Run the Streamlit app:
+if __name__ == "__main__":
+    main()
+
 
