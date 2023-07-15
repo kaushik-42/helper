@@ -47,7 +47,9 @@ def get_actuals_forecasts_table(application, year):
             # Use forecast for the month
             month_forecast = model.predict(pd.DataFrame({'ds': [month_start]}))
             forecasts.append(month_forecast['yhat'].values[0])
-            actuals.append(None)
+            #actuals.append(None)
+            actuals.append(None if month_forecast['yhat_lower'].values[0] > month_forecast['yhat_upper'].values[0] else month_forecast['yhat'].values[0])
+
 
     # Create the table
     table = pd.DataFrame({'Month': monthly_dates, 'Actuals': actuals, 'Forecasts': forecasts})
