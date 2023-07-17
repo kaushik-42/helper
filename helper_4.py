@@ -127,3 +127,18 @@ table = get_actuals_forecasts_table(application, year)
 # Print the table
 print(table)
 
+####################
+import datetime
+
+# User inputs
+application = st.selectbox("Select Application", application_options)
+yearly_prediction = st.radio("Do you want a yearly prediction for all months?", ("Yes", "No"))
+
+if yearly_prediction == "Yes":
+    current_year = datetime.date.today().year
+    years = list(range(current_year - 10, current_year + 10))  # Adjust the range as needed
+    year = st.selectbox("Select the year for the prediction", years)
+
+period = st.text_input("Enter Period")
+frequency = st.selectbox("Select Frequency", frequency_options)
+
