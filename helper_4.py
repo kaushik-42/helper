@@ -142,3 +142,47 @@ if yearly_prediction == "Yes":
 period = st.text_input("Enter Period")
 frequency = st.selectbox("Select Frequency", frequency_options)
 
+# ------------------------------------------------------------
+import pandas as pd
+import redis
+from snowflake.connector import connect
+
+# Snowflake connection details
+conn_params = {
+    'user': '<your_username>',
+    'password': '<your_password>',
+    'account': '<your_account_url>',
+    'warehouse': '<your_warehouse>',
+    'database': '<your_database>',
+    'schema': '<your_schema>',
+}
+
+# Function to establish Snowflake connection and fetch data
+def fetch_data_from_snowflake():
+    # Check if the data is already cached
+    if redis_cache.exists('data_df'):
+        # Retrieve the data from the cache
+        data_df_bytes = redis_cache.get('data_df')
+        data_df = pd.read_msgpack(data_df_bytes)
+        return data_df
+
+    conn = connect(**conn_params)
+    # Execute the necessary SQL queries to fetch the data
+    query = 'SELECT * FROM your_table'
+    df = pd.read_sql(query, conn)
+    conn.close()
+
+    # Store the data in the cache
+    data_df_bytes = df.to_msgpack()
+    redis_cache.set('data_df', data_df_bytes)
+
+    return df
+
+# Initialize Redis cache connection
+redis_cache = redis.Redis(host='redis-host', port=6379, db=0)
+
+# Fetch data from Snowflake
+data_df = fetch_data_from_snowflake()
+
+# Perform analysis on the fetched data
+perform_analysis(data_df)
