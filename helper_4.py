@@ -199,7 +199,18 @@ def load_models():
         # If the models are not already loaded, read them from the pickle file
         with open('model.pkl', 'rb') as file:
             loaded_models = pickle.load(file)
-
+            
 def your_function_that_uses_models():
     # Call the load_models() function before using the models
     load_models()
+
+# Plotting the figures:
+plt.figure(figsize=(10, 6))
+plt.plot(forecast_application['ds'], forecast_application['y'], label='Custom Y-Axis Label')
+plt.xlabel('Custom X-Axis Label')
+plt.ylabel('Custom Y-Axis Label')
+plt.title('Custom Forecast Plot')
+plt.legend()
+
+# Show the plot using Streamlit
+st.pyplot(plt)
