@@ -186,3 +186,20 @@ data_df = fetch_data_from_snowflake()
 
 # Perform analysis on the fetched data
 perform_analysis(data_df)
+
+
+import pickle
+
+# Define a global variable to store the loaded models
+loaded_models = None
+
+def load_models():
+    global loaded_models
+    if loaded_models is None:
+        # If the models are not already loaded, read them from the pickle file
+        with open('model.pkl', 'rb') as file:
+            loaded_models = pickle.load(file)
+
+def your_function_that_uses_models():
+    # Call the load_models() function before using the models
+    load_models()
