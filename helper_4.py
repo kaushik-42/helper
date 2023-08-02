@@ -240,3 +240,36 @@ def download_csv():
 
 st.markdown(download_csv(), unsafe_allow_html=True)
 
+
+# Add custom CSS to style the button
+st.markdown("""
+<style>
+.styled-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    margin: 4px 2px;
+    cursor: pointer;
+    border-radius: 8px;
+}
+</style>
+""", unsafe_allow_html=True)
+
+# Display the download button
+st.markdown(download_csv(), unsafe_allow_html=True)
+In this updated code, we use HTML and CSS to style the download button with a green background color and rounded corners. The button will be displayed below the table, and when users click on it, the CSV file will be downloaded.
+
+You can further customize the button's appearance by modifying the CSS styles in the styled-button class. You can change the background color, font size, padding, border, and other properties to match your application's style.
+
+Remember to replace the sample data (data) with your actual data to download the corresponding CSV file.
+
+
+
+
+
+
