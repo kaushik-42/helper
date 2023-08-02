@@ -214,3 +214,29 @@ plt.legend()
 
 # Show the plot using Streamlit
 st.pyplot(plt)
+
+# Export Button:
+import streamlit as st
+import pandas as pd
+
+# Sample data for the table (replace this with your actual data)
+data = {
+    'Column1': [1, 2, 3],
+    'Column2': ['A', 'B', 'C']
+}
+
+# Create a DataFrame from the sample data
+df = pd.DataFrame(data)
+
+# Display the table in Streamlit
+st.table(df)
+
+# Add an export button to download the table as a CSV file
+def download_csv():
+    csv = df.to_csv(index=False)
+    b64 = base64.b64encode(csv.encode()).decode()
+    href = f'<a href="data:file/csv;base64,{b64}" download="table_data.csv">Download CSV File</a>'
+    return href
+
+st.markdown(download_csv(), unsafe_allow_html=True)
+
