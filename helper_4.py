@@ -264,38 +264,17 @@ st.markdown("""
 st.markdown(download_csv(), unsafe_allow_html=True)
 In this updated code, we use HTML and CSS to style the download button with a green background color and rounded corners. The button will be displayed below the table, and when users click on it, the CSV file will be downloaded.
 
-You can further customize the button's appearance by modifying the CSS styles in the styled-button class. You can change the background color, font size, padding, border, and other properties to match your application's style.
-
-Remember to replace the sample data (data) with your actual data to download the corresponding CSV file.
-
-
-Amortized Costs from Azure:
-
-Amortized costs refer to the allocation of a large, upfront cost over a period of time, typically using a systematic and consistent method. In the context of Azure, amortized costs are often associated with services or resources that have an upfront fee or setup cost, but that fee is spread out over the usage period.
-
-For example, let's consider Azure Reserved Virtual Machine Instances. When you purchase a reserved instance, you pay an upfront fee to reserve the virtual machine capacity for a specific period, such as 1 or 3 years. The upfront fee is amortized over the reservation period, resulting in a lower effective hourly rate for the virtual machine during that time. This can lead to significant cost savings compared to on-demand pricing.
-
-Amortized costs are beneficial for budgeting and cost planning, as they allow you to allocate costs over time rather than dealing with a large, one-time expense. It's important to understand how amortized costs are calculated and how they impact your overall cloud expenses.
-
-Direct Costs from Snowflake:
-
-In the context of Snowflake, "direct costs" typically refer to the expenses directly associated with using the Snowflake data warehousing service. Snowflake offers a cloud-based data platform that allows organizations to store, analyze, and share data. Direct costs in Snowflake are the charges incurred for the resources you consume within the Snowflake environment.
-
-Direct costs in Snowflake may include:
-
-Compute Costs: Snowflake charges for the virtual warehouses (compute clusters) you use to run queries and perform data processing. The cost is based on the size of the virtual warehouse and the amount of time it runs.
-
-Storage Costs: Snowflake charges for the storage of your data in the platform. This includes costs for storing raw data, as well as costs associated with storing intermediate results generated during query processing.
-
-Data Transfer Costs: If you move data into or out of Snowflake, there may be data transfer costs associated with moving data between different regions or cloud providers.
-
-Data Sharing Costs: If you share data with external organizations using Snowflake's data sharing capabilities, there might be costs associated with data egress and data sharing.
-
-Data Loading Costs: Loading data into Snowflake may have associated costs, depending on the data loading methods you use.
-
-It's important to monitor and manage these direct costs in Snowflake to ensure cost-effective usage of the platform. Snowflake provides cost management features and tools to help you understand your usage patterns and optimize your expenses.
-
-Remember that both Azure and Snowflake pricing models and cost structures may change over time, so it's recommended to refer to the latest documentation from both providers for the most up-to-date information on amortized costs and direct costs.
 
 
 
+ARIMA (AutoRegressive Integrated Moving Average):
+ARIMA is a time series forecasting technique used to model and predict data points based on their historical values. It combines autoregressive (AR) and moving average (MA) components along with differencing to make the time series stationary. ARIMA models are widely used for univariate time series data and are effective for capturing trends, seasonality, and short-term patterns.
+
+SARIMA (Seasonal ARIMA):
+SARIMA is an extension of the ARIMA model that includes seasonal components. It's designed to handle time series data with both non-seasonal and seasonal patterns. SARIMA models incorporate additional parameters to account for seasonal trends, making them particularly useful for data with repeating patterns at fixed intervals.
+
+XGBoost (Extreme Gradient Boosting):
+XGBoost is a powerful machine learning algorithm used for both classification and regression tasks. It's based on gradient boosting and focuses on creating an ensemble of weak learners (usually decision trees) to build a strong predictive model. XGBoost is known for its efficiency, speed, and ability to handle complex relationships in data. It's a popular choice for structured data analysis and predictive modeling.
+
+Prophet:
+Prophet is a forecasting tool developed by Facebook for time series data. It's designed to handle various types of time series data, including those with seasonal patterns, holidays, and missing values. Prophet incorporates components for trend, seasonality, and holiday effects to generate accurate forecasts. It's particularly useful for users without extensive experience in time series analysis, as it simplifies the forecasting process.
